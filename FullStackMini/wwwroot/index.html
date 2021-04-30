@@ -1,0 +1,48 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+</head>
+<body>
+    <div id="app"></div>
+    <script>
+        const model = {
+            inputs: { name: ''},
+            people: [],
+        };
+
+        getData();
+        function updateView() {
+            document.getElementById('app').innerHTML = `
+                <input type="text" oninput="model.inputs.name=this.value" value="${model.inputs.name}" />
+                <button onclick="createPerson()">Lag ny person</button>
+                <h3>Personer</h3>
+                ${model.people.map(p => `
+                    <li>${p.firstName} <button onclick="deletePerson('${p.id}')">x</button></li>
+                `).join('')}
+            `;
+        }
+
+        async function createPerson() {
+            const person = { firstName: model.inputs.name };
+            let response = await axios.post('/api/people', person);
+            console.log(response);
+            getData();
+        }
+
+        async function deletePerson(id) {
+            let response = await axios.delete('/api/people/' + id);
+            getData();
+        }
+
+        async function getData() {
+            let response = await axios.get('/api/people');
+            model.people = response.data;
+            updateView();
+        }
+    </script>
+</body>
+</html>
